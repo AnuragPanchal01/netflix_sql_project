@@ -53,7 +53,7 @@ WHERE rank=1
 
 SELECT * FROM
 netflix
-where  release_year = 2020 and [type] = 'movie'
+where  release_year = 2020 and [type] = 'Movie'
 
 --4. Find the top 5 contries with the most content on Netflix
 
@@ -67,9 +67,10 @@ offset 0 rows fetch next 5 rows only;
 
 --5. Identify the longest Movie
 
-SELECT * 
+SELECT TOP 1 *
 FROM netflix
-WHERE [type] = 'Movie' and duration = (select MAX(duration)from netflix)
+WHERE type = 'Movie'
+ORDER BY TRY_CAST(LEFT(duration, CHARINDEX(' ', duration)-1) AS INT) DESC;
 
 --6. Find the content added in the last 5 years
 SELECT *
@@ -96,8 +97,10 @@ GROUP by TRIM([value]);
 --10. Find each year and the average numbers of content release by India on Netflix. Return top 5 year with highest avg content release!
 SELECT YEAR(TRY_CONVERT(date,date_added,107)) as year ,COUNT(*) as count , round(COUNT(*)*1.0/(select COUNT(*) from netflix where country='India')*100,2) as average_no_of_content
 from  netflix
-WHERE country = 'India'
-GROUP BY YEAR(TRY_CONVERT(date,date_added,107));
+WHERE country LIKE '%India%'
+GROUP BY YEAR(TRY_CONVERT(date,date_added,107))
+ORDER BY average_no_of_content DESC
+OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
 
 --11 select all the movies that are documentaries
 SELECT * from netflix
@@ -106,7 +109,7 @@ where listed_in like '%documentaries%';
 --12. Find all the content without a director
 
 SELECT * from netflix
-WHERE director is NULL;
+WHERE director IS NULL OR director = '';
 
 --13.How many movies actor 'Salman Khan' appeared in last 10 years 
 SELECT * from netflix
@@ -116,7 +119,7 @@ where [cast] like '%Salman Khan%' and release_year > YEAR(GETDATE())-10;
 select TRIM([value]) as actors,COUNT(*) as  total_movies
 from netflix 
 CROSS APPLY string_split([cast],',')
-WHERE [type]='Movie'
+WHERE [type]='Movie' and country Like '%India%'
 GROUP BY TRIM([value])
 ORDER BY total_movies DESC
 OFFSET 0 rows FETCH NEXT 10 rows ONLY;
@@ -125,7 +128,7 @@ OFFSET 0 rows FETCH NEXT 10 rows ONLY;
  --   Label content containing these keywords as 'Bad' and all others as 'Good'. Count how many items fall into each category
  with cte 
  as (
- SELECT* , case when [description] like '%kill%' or [description] like 'violence' then 'Bad'
+ SELECT* , case when [description] like '%kill%' or [description] like '%violence%' then 'Bad'
             else 'Good' end as category
  from netflix
  )
