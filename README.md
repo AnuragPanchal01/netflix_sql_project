@@ -100,7 +100,7 @@ SELECT COUNT(*) as Total_content from netflix
 ```sql
 SELECT type , count(*) as count
 from  netflix
-GROUP BY [type]
+GROUP BY [type] 
 ```
 
 ### 2. Find the most comman ratings for movie and TV shows 
@@ -181,7 +181,7 @@ GROUP by TRIM([value]);
 ```sql
 SELECT YEAR(TRY_CONVERT(date,date_added,107)) as year ,COUNT(*) as count , round(COUNT(*)*1.0/(select COUNT(*) from netflix where country='India')*100,2) as average_no_of_content
 from  netflix
-WHERE country = 'India'
+WHERE country LIKE '%India%'
 GROUP BY YEAR(TRY_CONVERT(date,date_added,107))
 ORDER BY average_no_of_content DESC
 OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
