@@ -2,6 +2,13 @@
 
 ![](https://github.com/AnuragPanchal01/netflix_sql_project/blob/main/logo.png)
 
+## Skills Demonstrated
+- SQL Joins & Aggregations
+- Window Functions (DENSE_RANK)
+- String Functions (STRING_SPLIT)
+- Date Handling
+- Data Cleaning
+
 ## Overview
 
 This project involves a comprehensive analysis of Netflix's movies and TV shows data using SQL. The goal is to extract valuable insights and answer various business questions based on the dataset. The following README provides a detailed account of the project's objectives, business problems, solutions, findings, and conclusions.
@@ -30,7 +37,7 @@ The data for this project is sourced from the Kaggle dataset:
 | type | Type of content (Movie / TV Show) |
 | title | Title of the content |
 | director | Director name(s) |
-| cast_members | List of actors in the content |
+| cast | List of actors in the content |
 | country | Country of origin |
 | date_added | Date when content was added to Netflix |
 | release_year | Year the content was released |
@@ -130,9 +137,10 @@ offset 0 rows fetch next 5 rows only;
 ### 5. Identify the longest Movie
 
 ```sql
-SELECT * 
+SELECT TOP 1 *
 FROM netflix
-WHERE [type] = 'Movie' and duration = (select MAX(duration)from netflix);
+WHERE type = 'Movie'
+ORDER BY TRY_CAST(LEFT(duration, CHARINDEX(' ', duration)-1) AS INT) DESC;
 ```
 
 ### 6. Find the content added in the last 5 years
@@ -188,7 +196,7 @@ where listed_in like '%documentaries%';
 
 ```sql
 SELECT * from netflix
-WHERE director is NULL;
+WHERE director IS NULL OR director = '';
 ```
 
 ### 13.How many movies actor 'Salman Khan' appeared in last 10 years 
@@ -204,7 +212,7 @@ where [cast] like '%Salman Khan%' and release_year > YEAR(GETDATE())-10;
 select TRIM([value]) as actors,COUNT(*) as  total_movies
 from netflix 
 CROSS APPLY string_split([cast],',')
-WHERE [type]='Movie'
+WHERE [type]='Movie' and country = 'India'
 GROUP BY TRIM([value])
 ORDER BY total_movies DESC
 OFFSET 0 rows FETCH NEXT 10 rows ONLY;
@@ -214,7 +222,7 @@ OFFSET 0 rows FETCH NEXT 10 rows ONLY;
 ```sql
  with cte 
  as (
- SELECT* , case when [description] like '%kill%' or [description] like 'violence' then 'Bad'
+ SELECT* , case when [description] like '%kill%' or [description] like '%violence%' then 'Bad'
             else 'Good' end as category
  from netflix
  )
