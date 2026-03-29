@@ -71,7 +71,7 @@ CREATE TABLE netflix
 );
 ```
 
-### Inserting data to retail_sales table
+### Inserting data into netflix table
 
 ```sql
 BULK INSERT netflix
@@ -119,7 +119,7 @@ WHERE rank=1
 ```sql
 SELECT * FROM
 netflix
-where  release_year = 2020 and [type] = 'movie'
+where  release_year = 2020 and [type] = 'Movie'
 ```
 
 ### 4. Find the top 5 contries with the most content on Netflix
@@ -182,7 +182,9 @@ GROUP by TRIM([value]);
 SELECT YEAR(TRY_CONVERT(date,date_added,107)) as year ,COUNT(*) as count , round(COUNT(*)*1.0/(select COUNT(*) from netflix where country='India')*100,2) as average_no_of_content
 from  netflix
 WHERE country = 'India'
-GROUP BY YEAR(TRY_CONVERT(date,date_added,107));
+GROUP BY YEAR(TRY_CONVERT(date,date_added,107))
+ORDER BY average_no_of_content DESC
+OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
 ```
 
 ### 11.select all the movies that are documentaries
@@ -212,7 +214,7 @@ where [cast] like '%Salman Khan%' and release_year > YEAR(GETDATE())-10;
 select TRIM([value]) as actors,COUNT(*) as  total_movies
 from netflix 
 CROSS APPLY string_split([cast],',')
-WHERE [type]='Movie' and country = 'India'
+WHERE [type]='Movie' and country Like '%India%'
 GROUP BY TRIM([value])
 ORDER BY total_movies DESC
 OFFSET 0 rows FETCH NEXT 10 rows ONLY;
